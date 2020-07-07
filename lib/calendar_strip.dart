@@ -20,6 +20,8 @@ class CalendarStrip extends StatefulWidget {
   final bool weekStartsOnSunday;
   final Icon rightIcon;
   final Icon leftIcon;
+  final List<String> monthLabels;
+  final List<String> dayLabels;
 
   CalendarStrip({
     this.addSwipeGesture = false,
@@ -36,6 +38,8 @@ class CalendarStrip extends StatefulWidget {
     this.markedDates,
     this.rightIcon,
     this.leftIcon,
+    this.monthLabels,
+    this.dayLabels,
   });
 
   State<CalendarStrip> createState() =>
@@ -82,6 +86,13 @@ class CalendarStripState extends State<CalendarStrip>
     lastDayOfMonth = DateUtils.getLastDayOfMonth(currentDate);
     runPresetsAndExceptions(selectedDate, startDate, endDate);
     this.selectedDate = currentDate;
+  }
+
+  nullOrDefault(var normalValue, var defaultValue) {
+    if (normalValue == null) {
+      return defaultValue;
+    }
+    return normalValue;
   }
 
   runPresetsAndExceptions(selectedDate, startDate, endDate) {
@@ -133,9 +144,12 @@ class CalendarStripState extends State<CalendarStrip>
         : currentDate.weekday - 1;
     rowStartingDate = rowStartingDate != null
         ? rowStartingDate
-        : currentDate.subtract(Duration(days: subtractDuration));
-    var dateRange = calculateDateRange(null);
+        : widget.startDate;
 
+    monthLabels = nullOrDefault(widget.monthLabels, monthLabels);
+    dayLabels = nullOrDefault(widget.dayLabels, dayLabels);
+
+    var dateRange = calculateDateRange(null);
     setState(() {
       isOnEndingWeek = dateRange['isEndingWeekOnRange'];
       isOnStartingWeek = dateRange['isStartingWeekOnRange'];
@@ -256,13 +270,6 @@ class CalendarStripState extends State<CalendarStrip>
     } else {}
   }
 
-  nullOrDefault(var normalValue, var defaultValue) {
-    if (normalValue == null) {
-      return defaultValue;
-    }
-    return normalValue;
-  }
-
   monthLabelWidget(monthLabel) {
     if (widget.monthNameWidget != null) {
       return widget.monthNameWidget(monthLabel);
@@ -345,15 +352,12 @@ class CalendarStripState extends State<CalendarStrip>
       monthLabelWidget(monthLabel),
       Container(
           padding: EdgeInsets.all(0),
-          child: GestureDetector(
-            onHorizontalDragEnd: (DragEndDetails details) =>
-                onStripDrag(details),
-            child: Row(children: [
-              leftIconWidget(),
-              Expanded(child: Row(children: currentWeekRow)),
-              rightIconWidget()
-            ]),
-          ))
+          child: Row(children: [
+            //leftIconWidget(),
+            Expanded(child: Row(children: currentWeekRow)),
+            //rightIconWidget()
+          ])
+      )
     ]);
   }
 
